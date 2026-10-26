@@ -9,6 +9,13 @@ from subnetbus import AABB, PathGuard, Registry
 
 SN = "10.1.1.0/24"
 
+# The fake engine must be executable, but zip extraction and git-from-zip drop file modes. Set it ourselves.
+_FAKE = Path(__file__).with_name("fake_godot.py")
+try:
+    os.chmod(_FAKE, 0o755)
+except OSError:
+    pass
+
 SCENE = """[gd_scene load_steps=1 format=3]
 
 [node name="Main" type="Node2D"]
