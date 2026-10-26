@@ -1,0 +1,23 @@
+name: ci
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python: ["3.10", "3.12", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with: { repository: "${{ github.repository_owner }}/engine-telemetry-bus", path: engine-telemetry-bus }
+      - uses: actions/checkout@v4
+        with: { repository: "${{ github.repository_owner }}/mule-protocol", path: mule-protocol }
+      - uses: actions/setup-python@v5
+        with: { python-version: "${{ matrix.python }}" }
+      - run: pip install -e ./engine-telemetry-bus -e ./mule-protocol -e ".[dev]"
+      - name: Fetch Godot 4.3
+        run: |
+          curl -sSL -o godot.zip https://github.com/godotengine/godot/releases/download/4.3-stable/Godot_v4.3-stable_linux.x86_64.zip
+          unzip -q godot.zip && chmod +x Godot_v4.3-stable_linux.x86_64
+          echo "GODOT_BIN=$PWD/Godot_v4.3-stable_linux.x86_64" >> "$GITHUB_ENV"
+      - run: pytest -q -rs
